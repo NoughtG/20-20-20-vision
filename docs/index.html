@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacy Policy - Farsight for Mac</title>
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --card-bg: #131b2e;
+            --text-primary: #f3f4f6;
+            --text-secondary: #9ca3af;
+            --accent: #10b981;
+            --accent-glow: rgba(16, 185, 129, 0.2);
+            --border-color: rgba(255, 255, 255, 0.08);
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            line-height: 1.6;
+            padding: 40px 20px;
+        }
+        .container {
+            max-width: 720px;
+            margin: 0 auto;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .app-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 18px;
+            margin-bottom: 16px;
+            box-shadow: 0 8px 24px var(--accent-glow);
+        }
+        h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+        }
+        h2 {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--accent);
+            margin-top: 24px;
+            margin-bottom: 12px;
+        }
+        h2:first-of-type { margin-top: 0; }
+        p {
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+            font-size: 15px;
+        }
+        ul {
+            margin-left: 20px;
+            margin-bottom: 16px;
+            color: var(--text-secondary);
+            font-size: 15px;
+        }
+        li { margin-bottom: 8px; }
+        strong { color: var(--text-primary); }
+        footer {
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 13px;
+            margin-top: 40px;
+        }
+        a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+        a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Privacy Policy for Farsight</h1>
+            <p class="subtitle">Last Updated: August 18, 2026</p>
+        </header>
+
+        <div class="card">
+            <h2>1. 100% Local, Zero Data Collection</h2>
+            <p>Farsight is designed from the ground up to respect your privacy. The app runs entirely on your Mac. We do not operate external servers, do not require user accounts, and <strong>never collect, sell, store, or transmit any personal data</strong>.</p>
+
+            <h2>2. Camera Access & Presence Detection</h2>
+            <p>Farsight includes an optional, opt-in camera presence check:</p>
+            <ul>
+                <li><strong>Strictly Opt-In:</strong> The app will never request camera access until you explicitly toggle the feature on in Settings.</li>
+                <li><strong>On-Device Analysis Only:</strong> When enabled, Farsight uses Apple’s native Vision framework to inspect a single frame every 60 seconds solely to determine if a face is present.</li>
+                <li><strong>Zero Retention:</strong> Frames are processed in volatile memory and <strong>immediately discarded</strong>. Nothing is ever saved to disk or transmitted over the network.</li>
+            </ul>
+
+            <h2>3. Local Storage</h2>
+            <p>Your preferences and streak history are stored strictly in local files on your Mac (<code>UserDefaults</code> and local Application Support). They never leave your device.</p>
+
+            <h2>4. Third-Party Services & Analytics</h2>
+            <p>Farsight does <strong>not</strong> include any analytics SDKs, tracking libraries, or third-party advertising networks.</p>
+
+            <h2>5. Contact Us</h2>
+            <p>For questions or support, visit our GitHub repository: <a href="https://github.com/NoughtG/20-20-20-vision" target="_blank">github.com/NoughtG/20-20-20-vision</a>.</p>
+        </div>
+
+        <footer>
+            <p>© 2026 Farsight. Built for macOS.</p>
+        </footer>
+    </div>
+</body>
+</html>
