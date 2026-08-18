@@ -1,0 +1,17 @@
+# Xcode & SPM build artifacts
+.build/
+.swiftpm/
+Farsight.app/
+DerivedData/
+*.xcuserdata
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+
+# Temporary files
+*.swp
+*~
