@@ -12,15 +12,23 @@ final class NotificationService: NSObject, UNUserNotificationCenterDelegate {
     /// Callback for when the user responds to a notification.
     var onBreakResponse: ((_ snoozed: Bool) -> Void)?
 
+    private var isNotificationSupported: Bool {
+        Bundle.main.bundleIdentifier != nil
+    }
+
     override init() {
         super.init()
-        setupNotificationCategories()
-        UNUserNotificationCenter.current().delegate = self
+        if isNotificationSupported {
+            setupNotificationCategories()
+            UNUserNotificationCenter.current().delegate = self
+        }
     }
 
     // MARK: - Setup
 
     private func setupNotificationCategories() {
+        guard isNotificationSupported else { return }
+
         let snoozeAction = UNNotificationAction(
             identifier: snoozeActionIdentifier,
             title: "Snooze",
@@ -42,6 +50,8 @@ final class NotificationService: NSObject, UNUserNotificationCenterDelegate {
 
     /// Request notification permission. Called once at startup.
     func requestPermission() async {
+        guard isNotificationSupported else { return }
+
         do {
             let granted = try await UNUserNotificationCenter.current()
                 .requestAuthorization(options: [.alert, .sound, .badge])
@@ -78,6 +88,8 @@ final class NotificationService: NSObject, UNUserNotificationCenterDelegate {
             playBreakStartSound()
         }
 
+        guard isNotificationSupported else { return }
+
         let content = UNMutableNotificationContent()
         content.title = "Time for a 20-20-20 break"
         content.body = "Look at something 20 feet away for \(durationSeconds) seconds. Your eyes will thank you."
@@ -103,6 +115,8 @@ final class NotificationService: NSObject, UNUserNotificationCenterDelegate {
         if soundEnabled {
             playBreakCompleteSound()
         }
+
+        guard isNotificationSupported else { return }
 
         let content = UNMutableNotificationContent()
         content.title = "Break complete"
