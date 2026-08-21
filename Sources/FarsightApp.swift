@@ -1,27 +1,72 @@
 import SwiftUI
+import Observation
+
+/// Main application state initialized immediately upon launch.
+/// Starts timer, notifications, and presence monitoring without requiring user to open the menu.
+@Observable
+@MainActor
+final class AppState {
+    let persistence: PersistenceService
+    let notificationService: NotificationService
+    let presenceService: PresenceService
+    let streakService: StreakService
+    let timerService: TimerService
+
+    init() {
+        let p = PersistenceService()
+        let n = NotificationService()
+        let pr = PresenceService()
+        let s = StreakService(persistence: p)
+        let t = TimerService(persistence: p, notificationService: n)
+
+        self.persistence = p
+        self.notificationService = n
+        self.presenceService = pr
+        self.streakService = s
+        self.timerService = t
+
+        // Wire notification responses back to the timer service
+        n.onBreakResponse = { [weak t] snoozed in
+            t?.handleBreakResponse(snoozed: snoozed)
+        }
+
+        // Start countdown timer immediately upon app launch!
+        t.start()
+
+        // Request notification permission asynchronously
+        Task {
+            await n.requestPermission()
+        }
+
+        // Start presence detection if enabled in persisted settings
+        if p.settings.presenceDetectionEnabled {
+            Task {
+                await pr.start()
+            }
+        }
+
+        // Keep face detection state in sync with timer service
+        Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
+            Task { @MainActor [weak self] in
+                guard let self else { return }
+                self.timerService.faceDetected = self.presenceService.faceDetected
+            }
+        }
+    }
+}
 
 @main
 struct FarsightApp: App {
-    @State private var persistence = PersistenceService()
-    @State private var notificationService = NotificationService()
-    @State private var presenceService = PresenceService()
-    @State private var streakService: StreakService?
-    @State private var timerService: TimerService?
+    @State private var appState = AppState()
 
     var body: some Scene {
         MenuBarExtra {
-            if let timerService, let streakService {
-                MenuBarView(
-                    timerService: timerService,
-                    presenceService: presenceService,
-                    streakService: streakService,
-                    persistence: persistence
-                )
-            } else {
-                Text("Starting...")
-                    .padding()
-                    .onAppear { setup() }
-            }
+            MenuBarView(
+                timerService: appState.timerService,
+                presenceService: appState.presenceService,
+                streakService: appState.streakService,
+                persistence: appState.persistence
+            )
         } label: {
             menuBarLabel
         }
@@ -29,18 +74,18 @@ struct FarsightApp: App {
 
         Settings {
             SettingsView(
-                persistence: persistence,
-                presenceService: presenceService
+                persistence: appState.persistence,
+                presenceService: appState.presenceService
             )
         }
     }
 
     @ViewBuilder
     private var menuBarLabel: some View {
-        if presenceService.isBlinking {
+        if appState.presenceService.isBlinking {
             // Animated double-blink during camera presence check
-            Image(systemName: presenceService.blinkFrame % 2 == 1 ? "eye.slash" : "eye.fill")
-        } else if timerService?.isBreakActive == true {
+            Image(systemName: appState.presenceService.blinkFrame % 2 == 1 ? "eye.slash" : "eye.fill")
+        } else if appState.timerService.isBreakActive {
             Image(systemName: "eye.circle.fill")
         } else {
             Image(systemName: "eye")
@@ -50,43 +95,5 @@ struct FarsightApp: App {
     init() {
         // Hide the Dock icon — this app lives in the menu bar only.
         NSApplication.shared.setActivationPolicy(.accessory)
-    }
-
-    private func setup() {
-        let ss = StreakService(persistence: persistence)
-        let ts = TimerService(persistence: persistence, notificationService: notificationService)
-
-        // Wire notification responses back to the timer service
-        notificationService.onBreakResponse = { snoozed in
-            ts.handleBreakResponse(snoozed: snoozed)
-        }
-
-        // Request notification permission
-        Task {
-            await notificationService.requestPermission()
-        }
-
-        // If presence detection is already enabled (persisted setting), start it
-        if persistence.settings.presenceDetectionEnabled {
-            Task {
-                await presenceService.start()
-            }
-        }
-
-        // Start the countdown
-        ts.start()
-        streakService = ss
-        timerService = ts
-
-        // Keep face detection state in sync with timer service
-        syncPresenceState(timerService: ts)
-    }
-
-    private func syncPresenceState(timerService: TimerService) {
-        Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [presenceService] _ in
-            Task { @MainActor in
-                timerService.faceDetected = presenceService.faceDetected
-            }
-        }
     }
 }
